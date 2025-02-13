@@ -227,7 +227,8 @@
             document.getElementById('holdButton').classList.remove('hidden');
         });
         
-        document.getElementById('holdButton').addEventListener('mousedown', function() {
+        document.getElementById('holdButton').addEventListener('mousedown', function(event) {
+            event.preventDefault(); // Prevent text selection
             meterInterval = setInterval(() => {
                 if (meterProgress < 100) {
                     meterProgress += 10;
@@ -238,8 +239,26 @@
                 }
             }, 100);
         });
-        
+
         document.getElementById('holdButton').addEventListener('mouseup', function() {
+            clearInterval(meterInterval);
+        });
+
+        // Add touchstart event for mobile devices
+        document.getElementById('holdButton').addEventListener('touchstart', function(event) {
+            event.preventDefault(); // Prevent text selection on touch devices
+            meterInterval = setInterval(() => {
+                if (meterProgress < 100) {
+                    meterProgress += 10;
+                    document.getElementById('meterFill').style.width = meterProgress + '%';
+                } else {
+                    clearInterval(meterInterval);
+                    showNextMessage();
+                }
+            }, 100);
+        });
+
+        document.getElementById('holdButton').addEventListener('touchend', function() {
             clearInterval(meterInterval);
         });
 
@@ -286,118 +305,11 @@
         }
 
         function showWholesomeText() {
-    const wholesomeText = document.createElement('div');
-    wholesomeText.classList.add('wholesome-text');
-    wholesomeText.innerText = "💑🌸💖❤️";
-    document.body.appendChild(wholesomeText);
-
-    // Create the envelope icon
-    const envelope = document.createElement('div');
-    envelope.innerHTML = "📩";
-    envelope.style.position = "fixed";
-    envelope.style.bottom = "40%";
-    envelope.style.left = "60%"; // Move to the right side
-    envelope.style.transform = "translate(-50%, 50%)";
-    envelope.style.fontSize = "50px";
-    envelope.style.cursor = "pointer";
-    envelope.style.transition = "transform 0.2s";
-    envelope.setAttribute("id", "envelopeIcon");
-
-    // Hover effect
-    envelope.addEventListener("mouseenter", function () {
-        envelope.style.transform = "translate(-50%, 50%) scale(1.2)";
-    });
-
-    envelope.addEventListener("mouseleave", function () {
-        envelope.style.transform = "translate(-50%, 50%) scale(1)";
-    });
-
-    // Append to body
-    document.body.appendChild(envelope);
-
-    // Create the arrow trace and "Click Here" label
-    const arrow = document.createElement('div');
-    arrow.innerHTML = "⬆️ Click Here";
-    arrow.style.position = "fixed";
-    arrow.style.bottom = "42%";
-    arrow.style.left = "60%"; // Align with envelope
-    arrow.style.transform = "translateX(-50%)";
-    arrow.style.fontSize = "18px";
-    arrow.style.color = "red";
-    arrow.style.fontWeight = "bold";
-    arrow.style.animation = "bounce 1s infinite alternate";
-    arrow.setAttribute("id", "clickArrow");
-
-    // Append arrow
-    document.body.appendChild(arrow);
-
-    // Keyframe animation for bouncing effect
-    const style = document.createElement('style');
-    style.innerHTML = `
-        @keyframes bounce {
-            0% { transform: translateX(-50%) translateY(0); }
-            100% { transform: translateX(-50%) translateY(-5px); }
+            const wholesomeText = document.createElement('div');
+            wholesomeText.classList.add('wholesome-text');
+            wholesomeText.innerText = "💑🌸💖❤️";
+            document.body.appendChild(wholesomeText);
         }
-    `;
-    document.head.appendChild(style);
-
-    // Click event to show popup
-    envelope.addEventListener("click", function () {
-        showPopup();
-        arrow.remove(); // Remove arrow after clicking
-    });
-}
-
-// Function to show the popup with the note and darken the background
-function showPopup() {
-    // Create overlay to darken background
-    const overlay = document.createElement('div');
-    overlay.style.position = "fixed";
-    overlay.style.top = "0";
-    overlay.style.left = "0";
-    overlay.style.width = "100%";
-    overlay.style.height = "100%";
-    overlay.style.background = "rgba(0, 0, 0, 0.5)";
-    overlay.style.zIndex = "1000";
-    overlay.setAttribute("id", "overlay");
-
-    // Create popup
-    const popup = document.createElement('div');
-    popup.style.position = "fixed";
-    popup.style.top = "50%";
-    popup.style.left = "50%";
-    popup.style.transform = "translate(-50%, -50%)";
-    popup.style.background = "white";
-    popup.style.padding = "20px";
-    popup.style.borderRadius = "10px";
-    popup.style.boxShadow = "0px 4px 10px rgba(0, 0, 0, 0.2)";
-    popup.style.zIndex = "1001";
-    popup.style.textAlign = "center";
-
-    const message = document.createElement('p');
-    message.innerText = "I hope you liked it, Shobi. 🫶 You are truly amazing. Words can't explain how everything you do and say makes me happy. You truly are a Disney princess 🏰✨.Have an amazing Valentine's Day!💖";
-    message.style.fontSize = "18px";
-    
-    const closeButton = document.createElement('button');
-    closeButton.innerText = "Close";
-    closeButton.style.marginTop = "10px";
-    closeButton.style.padding = "8px 16px";
-    closeButton.style.background = "red";
-    closeButton.style.color = "white";
-    closeButton.style.border = "none";
-    closeButton.style.borderRadius = "5px";
-    closeButton.style.cursor = "pointer";
-
-    closeButton.addEventListener("click", function () {
-        popup.remove();
-        overlay.remove(); // Remove the dark background
-    });
-
-    popup.appendChild(message);
-    popup.appendChild(closeButton);
-    document.body.appendChild(overlay); // Add dark background
-    document.body.appendChild(popup);
-}
     </script>
 </body>
 </html>
