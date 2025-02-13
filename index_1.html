@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hey you</title>
+    <style>
+        body {
+            background-color: pink;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: transform 0.3s;
+            width: 90%;
+            max-width: 400px;
+        }
+        .card:hover {
+            transform: scale(1.05);
+        }
+        .hidden {
+            display: none;
+        }
+        .message {
+            font-size: 20px;
+            margin-top: 20px;
+        }
+        .icons {
+            font-size: 30px;
+            margin-top: 10px;
+        }
+        .love-meter {
+            width: 80%;
+            height: 20px;
+            background: lightgray;
+            border-radius: 10px;
+            margin-top: 20px;
+            overflow: hidden;
+            position: relative;
+            max-width: 400px;
+        }
+        .meter-fill {
+            height: 100%;
+            width: 0%;
+            background: red;
+            border-radius: 10px;
+            transition: width 0.2s;
+        }
+        .hold-button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background: red;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        .emoji {
+            position: absolute;
+            font-size: 30px;
+            animation: pop 1s ease-out forwards;
+        }
+        @keyframes pop {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) scale(1.5);
+                opacity: 0;
+            }
+        }
+        .buttons {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .yes-btn {
+            background: green;
+            color: white;
+        }
+        .no-btn {
+            background: red;
+            color: white;
+            position: absolute;
+        }
+        /* Fireworks */
+        .firework {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background: red;
+            border-radius: 50%;
+            animation: fireworks 1s ease-out forwards;
+        }
+        @keyframes fireworks {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--x), var(--y)) scale(2);
+            }
+        }
+        .firework-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        .wholesome-text {
+            font-size: 24px;
+            color: green;
+            text-align: center;
+            margin-top: 20px;
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* Media Queries for Mobile */
+        @media (max-width: 600px) {
+            .message {
+                font-size: 16px;
+            }
+            .icons {
+                font-size: 25px;
+            }
+            .hold-button {
+                padding: 12px 25px;
+                font-size: 16px;
+            }
+            .love-meter {
+                width: 90%;
+                max-width: 300px;
+            }
+            .btn {
+                width: 100%;
+                padding: 15px;
+                font-size: 18px;
+                margin: 5px 0;
+            }
+            .firework-container {
+                top: 10px;
+                left: 10px;
+                right: 10px;
+                bottom: 10px;
+            }
+            .wholesome-text {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="card" id="valentineCard">
+        <h2>Hello Beautiful</h2>
+        <p>Please click to open 💌</p>
+    </div>
+    
+    <div class="card hidden" id="messageCard">
+        <p class="message" id="textMessage">Hey you💖</p>
+        <div class="icons">🌹💕✨</div>
+        <div class="love-meter hidden" id="loveMeter">
+            <div class="meter-fill" id="meterFill"></div>
+        </div>
+        <button class="hold-button hidden" id="holdButton">Hold to Fill ❤️</button>
+        <p class="message hidden" id="finalMessage">Will you be my Valentine?❤️</p>
+        <div class="buttons hidden" id="buttons">
+            <button class="btn yes-btn" id="yesButton">Yes ❤️</button>
+            <button class="btn no-btn" id="noButton">No 💔</button>
+        </div>
+    </div>
+
+    <!-- Firework container -->
+    <div class="firework-container" id="fireworkContainer"></div>
+
+    <script>
+        const messages = [
+            "I know this might not be the best way to say this but💡❤️",
+            "I really like you a lot",
+            "And it's really hard for me to wait 15 Fucking days to keep it to myself.💓",
+            "But thats worth it in the end because its you.☀️💛",
+            "I wish you were here so that I can tell you this while looking into your eyes⏳💕",
+            "But, here it goes...",
+            "Happy Valentine's Day!❤️"
+        ];
+        
+        const emojis = ["🌹", "💖", "✨", "😍", "💓", "💐", "🥰", "💕", "💌"];
+        let index = 0;
+        let meterProgress = 0;
+        let meterInterval;
+        
+        document.getElementById('valentineCard').addEventListener('click', function() {
+            this.classList.add('hidden');
+            document.getElementById('messageCard').classList.remove('hidden');
+            document.getElementById('loveMeter').classList.remove('hidden');
+            document.getElementById('holdButton').classList.remove('hidden');
+        });
+        
+        document.getElementById('holdButton').addEventListener('mousedown', function() {
+            meterInterval = setInterval(() => {
+                if (meterProgress < 100) {
+                    meterProgress += 10;
+                    document.getElementById('meterFill').style.width = meterProgress + '%';
+                } else {
+                    clearInterval(meterInterval);
+                    showNextMessage();
+                }
+            }, 100);
+        });
+        
+        document.getElementById('holdButton').addEventListener('mouseup', function() {
+            clearInterval(meterInterval);
+        });
+
+        function showNextMessage() {
+            if (index < messages.length) {
+                document.getElementById('textMessage').innerText = messages[index];
+                index++;
+                meterProgress = 0;
+                document.getElementById('meterFill').style.width = '0%';
+            }
+            if (index === messages.length) {
+                document.getElementById('finalMessage').classList.remove('hidden');
+                document.getElementById('loveMeter').classList.add('hidden');
+                document.getElementById('holdButton').classList.add('hidden');
+                document.getElementById('buttons').classList.remove('hidden');
+            }
+        }
+
+        document.getElementById('noButton').addEventListener('mousemove', function() {
+            this.style.top = Math.random() * window.innerHeight + 'px';
+            this.style.left = Math.random() * window.innerWidth + 'px';
+        });
+
+        // Add fireworks and wholesome text when Yes is clicked
+        document.getElementById('yesButton').addEventListener('click', function() {
+            createFireworks();
+            showWholesomeText();
+            document.getElementById('noButton').classList.add('hidden'); // Hide the No button
+        });
+
+        function createFireworks() {
+            for (let i = 0; i < 10; i++) {
+                const firework = document.createElement('div');
+                firework.classList.add('firework');
+                firework.style.left = Math.random() * window.innerWidth + 'px';
+                firework.style.top = Math.random() * window.innerHeight + 'px';
+                firework.style.setProperty('--x', (Math.random() * 500 - 250) + 'px');
+                firework.style.setProperty('--y', (Math.random() * 500 - 250) + 'px');
+                document.getElementById('fireworkContainer').appendChild(firework);
+                setTimeout(() => {
+                    firework.remove();
+                }, 1000);
+            }
+        }
+
+        function showWholesomeText() {
+    const wholesomeText = document.createElement('div');
+    wholesomeText.classList.add('wholesome-text');
+    wholesomeText.innerText = "💑🌸💖❤️";
+    document.body.appendChild(wholesomeText);
+
+    // Create the envelope icon
+    const envelope = document.createElement('div');
+    envelope.innerHTML = "📩";
+    envelope.style.position = "fixed";
+    envelope.style.bottom = "40%";
+    envelope.style.left = "60%"; // Move to the right side
+    envelope.style.transform = "translate(-50%, 50%)";
+    envelope.style.fontSize = "50px";
+    envelope.style.cursor = "pointer";
+    envelope.style.transition = "transform 0.2s";
+    envelope.setAttribute("id", "envelopeIcon");
+
+    // Hover effect
+    envelope.addEventListener("mouseenter", function () {
+        envelope.style.transform = "translate(-50%, 50%) scale(1.2)";
+    });
+
+    envelope.addEventListener("mouseleave", function () {
+        envelope.style.transform = "translate(-50%, 50%) scale(1)";
+    });
+
+    // Append to body
+    document.body.appendChild(envelope);
+
+    // Create the arrow trace and "Click Here" label
+    const arrow = document.createElement('div');
+    arrow.innerHTML = "⬆️ Click Here";
+    arrow.style.position = "fixed";
+    arrow.style.bottom = "42%";
+    arrow.style.left = "60%"; // Align with envelope
+    arrow.style.transform = "translateX(-50%)";
+    arrow.style.fontSize = "18px";
+    arrow.style.color = "red";
+    arrow.style.fontWeight = "bold";
+    arrow.style.animation = "bounce 1s infinite alternate";
+    arrow.setAttribute("id", "clickArrow");
+
+    // Append arrow
+    document.body.appendChild(arrow);
+
+    // Keyframe animation for bouncing effect
+    const style = document.createElement('style');
+    style.innerHTML = `
+        @keyframes bounce {
+            0% { transform: translateX(-50%) translateY(0); }
+            100% { transform: translateX(-50%) translateY(-5px); }
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Click event to show popup
+    envelope.addEventListener("click", function () {
+        showPopup();
+        arrow.remove(); // Remove arrow after clicking
+    });
+}
+
+// Function to show the popup with the note and darken the background
+function showPopup() {
+    // Create overlay to darken background
+    const overlay = document.createElement('div');
+    overlay.style.position = "fixed";
+    overlay.style.top = "0";
+    overlay.style.left = "0";
+    overlay.style.width = "100%";
+    overlay.style.height = "100%";
+    overlay.style.background = "rgba(0, 0, 0, 0.5)";
+    overlay.style.zIndex = "1000";
+    overlay.setAttribute("id", "overlay");
+
+    // Create popup
+    const popup = document.createElement('div');
+    popup.style.position = "fixed";
+    popup.style.top = "50%";
+    popup.style.left = "50%";
+    popup.style.transform = "translate(-50%, -50%)";
+    popup.style.background = "white";
+    popup.style.padding = "20px";
+    popup.style.borderRadius = "10px";
+    popup.style.boxShadow = "0px 4px 10px rgba(0, 0, 0, 0.2)";
+    popup.style.zIndex = "1001";
+    popup.style.textAlign = "center";
+
+    const message = document.createElement('p');
+    message.innerText = "I hope you liked it, Shobi. 🫶 You are truly amazing. Words can't explain how everything you do and say makes me happy. You truly are a Disney princess 🏰✨.Have an amazing Valentine's Day!💖";
+    message.style.fontSize = "18px";
+    
+    const closeButton = document.createElement('button');
+    closeButton.innerText = "Close";
+    closeButton.style.marginTop = "10px";
+    closeButton.style.padding = "8px 16px";
+    closeButton.style.background = "red";
+    closeButton.style.color = "white";
+    closeButton.style.border = "none";
+    closeButton.style.borderRadius = "5px";
+    closeButton.style.cursor = "pointer";
+
+    closeButton.addEventListener("click", function () {
+        popup.remove();
+        overlay.remove(); // Remove the dark background
+    });
+
+    popup.appendChild(message);
+    popup.appendChild(closeButton);
+    document.body.appendChild(overlay); // Add dark background
+    document.body.appendChild(popup);
+}
+    </script>
+</body>
+</html>
